@@ -49,5 +49,70 @@
  *   // => { name: "Ram", area: "Dadar", total: 2, completed: 1, pending: 1, successRate: "50.00%" }
  */
 export function createDabbawala(name, area) {
-  // Your code here
+    let id = 0;
+    let deliveries = [];
+    const returningFunctions = {
+        addDelivery(from, to) {
+            if (!from || !to) return -1;
+            id++;
+            const newObj = { id, from, to, status: "pending" };
+            deliveries.push(newObj);
+            return id;
+        },
+
+        completeDelivery(id) {
+            for (let delivery of deliveries) {
+                if (id === delivery.id && delivery.status === "pending") {
+                    delivery.status = "completed";
+                    return true;
+                }
+            }
+
+            return false;
+        },
+
+        getActiveDeliveries() {
+            return deliveries.filter(
+                (delivery) => delivery.status === "pending",
+            );
+        },
+
+        getStats() {
+            const completedAndPending = deliveries.reduce(
+                (acc, delivery) => {
+                    const state =
+                        delivery.status === "pending" ? "pending" : "completed";
+                    acc[state] += 1;
+                    return acc;
+                },
+                { completed: 0, pending: 0 },
+            );
+
+            const total = deliveries.length;
+            let successRate = "0.00";
+            if (total) {
+                successRate = (
+                    (completedAndPending.completed / total) *
+                    100
+                ).toFixed(2);
+            }
+
+            return {
+                name,
+                area,
+                total,
+                successRate: `${successRate}%`,
+                completed: completedAndPending.completed,
+                pending: completedAndPending.pending,
+            };
+        },
+
+        reset() {
+            deliveries = [];
+            id = 0;
+            return true;
+        },
+    };
+
+    return returningFunctions;
 }
